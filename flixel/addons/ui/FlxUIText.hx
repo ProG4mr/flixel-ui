@@ -15,9 +15,14 @@ import openfl.text.TextField;
 class FlxUIText extends FlxText implements IResizable implements IFlxUIWidget implements IHasParams
 {
 	public var broadcastToFlxUI:Bool = true;
-	public var id:String; 
+	public var name:String; 
 	public var params(default, set):Array<Dynamic>;
 	public var minimumHeight(default, set):Float = 1;
+	
+	public function new(X:Float = 0, Y:Float = 0, FieldWidth:Float = 0, ?Text:String, Size:Float = 8, EmbeddedFont:Bool = true)
+	{
+		super(X, Y, FieldWidth, Text, Size, EmbeddedFont);
+	}
 	
 	public function resize(w:Float, h:Float):Void
 	{
@@ -107,7 +112,12 @@ class FlxUIText extends FlxText implements IResizable implements IFlxUIWidget im
 		var newText = new FlxUIText();
 		newText.width = width;
 		newText.height = height;
-		newText.setFormat(font, size, color);
+		
+		var theFont:String = font;
+		#if flash
+			theFont = FontFixer.fix(font);
+		#end
+		newText.setFormat(theFont, size, color);
 		
 		//for some reason, naively setting (f.alignment = alignment) causes cast errors!
 		if (_defaultFormat != null && _defaultFormat.align != null)

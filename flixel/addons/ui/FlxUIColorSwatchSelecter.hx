@@ -86,7 +86,7 @@ class FlxUIColorSwatchSelecter extends FlxUIGroup implements IFlxUIClickable
 				swatch = new FlxUIColorSwatch(0, 0, data);
 				swatch.callback = selectCallback.bind(i);
 				swatch.broadcastToFlxUI = false;
-				swatch.id = data.name;
+				swatch.name = data.name;
 				add(swatch);
 				i++;
 			}
@@ -97,7 +97,7 @@ class FlxUIColorSwatchSelecter extends FlxUIGroup implements IFlxUIClickable
 				swatch = new FlxUIColorSwatch(0, 0, color);
 				swatch.callback = selectCallback.bind(i);
 				swatch.broadcastToFlxUI = false;
-				swatch.id = "0x"+StringTools.hex(color, 6);
+				swatch.name = "0x"+StringTools.hex(color, 6);
 				add(swatch);
 				i++;
 			}
@@ -105,7 +105,7 @@ class FlxUIColorSwatchSelecter extends FlxUIGroup implements IFlxUIClickable
 		{
 			for (swatch in list_swatches) 
 			{
-				swatch.id = "swatch_" + i;
+				swatch.name = "swatch_" + i;
 				swatch.callback = selectCallback.bind(i);
 				swatch.broadcastToFlxUI = false;
 				add(swatch);
@@ -231,7 +231,7 @@ class FlxUIColorSwatchSelecter extends FlxUIGroup implements IFlxUIClickable
 			
 			if (fuics == null) {
 				fuics = new FlxUIColorSwatch(0, 0, list[i]);
-				fuics.id = list[i].name;
+				fuics.name = list[i].name;
 				fuics.broadcastToFlxUI = false;
 				fuics.callback = selectCallback.bind(i);
 				add(fuics);
@@ -349,7 +349,7 @@ class FlxUIColorSwatchSelecter extends FlxUIGroup implements IFlxUIClickable
 		for (sprite in members) {
 			if (sprite != _selectedSwatch) {
 				var swatch:FlxUIColorSwatch = cast sprite;
-				if (swatch.id == Name) {
+				if (swatch.name == Name) {
 					_selectedSwatch = swatch;
 					break;
 				}

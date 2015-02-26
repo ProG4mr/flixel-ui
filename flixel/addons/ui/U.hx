@@ -15,6 +15,7 @@ import haxe.Json;
 import haxe.xml.Fast;
 import haxe.xml.Printer;
 import openfl.Assets;
+import openfl.display.BitmapDataChannel;
 import openfl.geom.Matrix;
 
 #if (cpp || neko)
@@ -46,7 +47,23 @@ class U
 				return data.get(att);
 			}
 		}return default_str;
-	} 
+	}
+	
+	/**
+	 * For conveniently getting the very common "name" attribute, with backwards-compatibility for the old "id" attribute if name is not found
+	 * @param	data
+	 * @return
+	 */
+	
+	public static function xml_name(data:Xml):String
+	{
+		var name:String = U.xml_str(data, "name", true, "");
+		if (name == "")
+		{
+			name = U.xml_str(data, "id", true, "");
+		}
+		return name;
+	}
 	/**
 	 * Safety wrapper for reading a FlxColor attribute from xml
 	 * @param	data the Xml object
@@ -745,8 +762,11 @@ class U
 			str = str + ".ttf";
 		}
 		
+		#if flash
+			str = FontFixer.add(str);
+		#end
+		
 		return str;
-		//return _font(str,style) + ".ttf";
 	}
 	
 		//inline that does the work:
@@ -1018,7 +1038,7 @@ class U
 	 * @return	the unique key of the scaled bitmap
 	 */
 	
-	public static function loadMonoScaledImage(src:String,Scale:Float,smooth:Bool=true,checkFlxBitmap:Bool=false):String
+	public static function loadMonoScaledImage(src:String,Scale:Float,smooth:Bool=true,checkFlxBitmap:Bool=false,fixAlphaChannel:Bool=false):String
 	{
 		var bmpSrc:String = gfx(src);
 		var	testBmp:BitmapData = null;
@@ -1048,12 +1068,26 @@ class U
 				//if it doesn't exist yet, create it
 				if (FlxG.bitmap.get(scaleKey) == null)
 				{
-					var scaledBmp:BitmapData = new BitmapData(Std.int(testBmp.width*Scale), Std.int(testBmp.height*Scale),true,0x00000000);	//create a unique bitmap and scale it
+					var scaledBmp:BitmapData = new BitmapData(Std.int(testBmp.width*Scale), Std.int(testBmp.height*Scale),true, 0x00000000);	//create a unique bitmap and scale it
 					
 					var m:Matrix = getMatrix();
 					m.identity();
 					m.scale(Scale, Scale);
 					scaledBmp.draw(testBmp, m, null, null, null, smooth);
+					
+					if (fixAlphaChannel)
+					{
+						//Create a black canvas
+						var black = new BitmapData(scaledBmp.width, scaledBmp.height, true, 0xFF000000);
+						//Copy the image onto it
+						black.copyPixels(scaledBmp, scaledBmp.rect, new Point(), null, null, true);
+						//Copy the alpha channel onto it
+						black.copyChannel(scaledBmp, scaledBmp.rect, new Point(0, 0), BitmapDataChannel.ALPHA, BitmapDataChannel.ALPHA);
+						
+						var temp = scaledBmp;
+						scaledBmp = black;
+						temp.dispose();
+					}
 					
 					FlxG.bitmap.add(scaledBmp, true, scaleKey);			//store it by the unique key
 				}
